@@ -1,9 +1,11 @@
 package com.example.securitycourse.securityconfig;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -28,9 +30,11 @@ public class SecurityConfig {
 //        return http.build();
 
         return http
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/public/**").permitAll()
-                        .requestMatchers("/member/**").hasAnyAuthority("MEMBER_READ")
+                        .requestMatchers(HttpMethod.GET,"/member").hasAnyAuthority("MEMBER_READ")
+                        .requestMatchers(HttpMethod.PUT,"/member").hasAnyAuthority("MEMBER_UPDATE")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new ApiKeyAuthFilter(), BasicAuthenticationFilter.class)
@@ -49,6 +53,11 @@ public class SecurityConfig {
 
         // PERFORM QUERY USER AND PASSWORD FROM DATABASE (BELOW IS MOCKUP)
         UserDetails user = User.withUsername("member")
+                .password(encoder.encode("password"))
+                .authorities("MEMBER_READ", "MEMBER_UPDATE")
+                .build();
+
+        UserDetails admin = User.withUsername("member")
                 .password(encoder.encode("password"))
                 .authorities("MEMBER_READ", "MEMBER_UPDATE")
                 .build();
