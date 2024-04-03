@@ -5,12 +5,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/public")
-public class PublicController {
+@RequestMapping("/member")
+public class MemberController {
 
+    // PERMISSION MEMBER READ
     @GetMapping("")
     public String greeting() {
-        return "Public Resource";
+        return "Member Resource";
     }
 
 }
