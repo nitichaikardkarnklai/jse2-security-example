@@ -33,8 +33,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/public/**").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/member").hasAnyAuthority("MEMBER_READ")
-                        .requestMatchers(HttpMethod.PUT,"/member").hasAnyAuthority("MEMBER_UPDATE")
+                        .requestMatchers("/member/**").hasAnyRole("MEMBER", "ADMIN")
+                        .requestMatchers("/admin/**").hasAnyRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new ApiKeyAuthFilter(), BasicAuthenticationFilter.class)
@@ -54,14 +54,14 @@ public class SecurityConfig {
         // PERFORM QUERY USER AND PASSWORD FROM DATABASE (BELOW IS MOCKUP)
         UserDetails user = User.withUsername("member")
                 .password(encoder.encode("password"))
-                .authorities("MEMBER_READ", "MEMBER_UPDATE")
+                .roles("MEMBER") // Spring will store "ROLE_MEMBER"
                 .build();
 
-        UserDetails admin = User.withUsername("member")
+        UserDetails admin = User.withUsername("admin")
                 .password(encoder.encode("password"))
-                .authorities("MEMBER_READ", "MEMBER_UPDATE")
+                .roles("ADMIN") // Spring will store "ROLE_ADMIN
                 .build();
 
-        return  new InMemoryUserDetailsManager(user);
+        return  new InMemoryUserDetailsManager(user, admin);
     }
 }
