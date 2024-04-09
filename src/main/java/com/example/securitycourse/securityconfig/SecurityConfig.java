@@ -31,9 +31,11 @@ import java.util.List;
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
     private final AuthenticationUserDetailService authenticationUserDetailService;
+    private final JwtAuthFilter jwtAuthFilter;
 
-    public SecurityConfig(AuthenticationUserDetailService authenticationUserDetailService) {
+    public SecurityConfig(AuthenticationUserDetailService authenticationUserDetailService, JwtAuthFilter jwtAuthFilter) {
         this.authenticationUserDetailService = authenticationUserDetailService;
+        this.jwtAuthFilter = jwtAuthFilter;
     }
 
     @Bean
@@ -45,9 +47,11 @@ public class SecurityConfig {
                         .requestMatchers("/public/**").permitAll()
 //                        .requestMatchers("/member/**").hasAnyRole("MEMBER", "ADMIN")
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, ("auth/authenticate")).permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(new ApiKeyAuthFilter(), BasicAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthFilter, BasicAuthenticationFilter.class)
+//                .addFilterBefore(new ApiKeyAuthFilter(), BasicAuthenticationFilter.class)
                 .httpBasic(Customizer.withDefaults())
                 .build();
     }
@@ -70,18 +74,4 @@ public class SecurityConfig {
         return authenticationProvider;
     }
 
-//    @Bean
-//    public UserDetailsService userDetailsService () {
-//
-//        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-//
-//        CustomUserDetail user = new CustomUserDetail("member", encoder.encode("password"));
-//        user.setRoles(List.of("MEMBER"));
-//        user.setPermission(List.of("MEMBER_READ"));
-//
-//        CustomUserDetail admin = new CustomUserDetail("admin", encoder.encode("password"));
-//        admin.setRoles(List.of("ADMIN"));
-//
-//        return new InMemoryUserDetailsManager(user, admin);
-//    }
 }
