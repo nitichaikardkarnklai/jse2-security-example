@@ -52,7 +52,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 //            }
             UserDetails userDetails = userRepository.findUserByUsername(username);
             if(jwtService.validateToken(jwtToken,userDetails)) {
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null);
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
         }
